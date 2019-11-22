@@ -1,45 +1,75 @@
-﻿@page "/fetchdata"
+﻿@page "/TSP"
 @inject HttpClient Http
 
-<h1>Weather forecast</h1>
+<h1>Travelling Salesmen Problem</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if(tspSpec == null)
 {
     <p><em>Loading...</em></p>
 }
+
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
+<form>
+    <label>
+        TSP Specification:
+        <select class="form-control" @onchange="TSPSpecSelected">
+            @foreach (var spec in tspSpec)
             {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
+                <option>@spec.Name</option>
             }
-        </tbody>
-    </table>
+        </select>
+    </label>
+
+</form>
+
+    <BECanvas @ref="scene" Width ="500" Height ="500"></BECanvas>
 }
 
 @code {
     WeatherForecast[] forecasts;
+    TSPSolving[] tspSpec;
+    TSPSolving selectedTSPSpec;
 
-    protected override async Task OnInitializedAsync()
+
+
+
+
+    public class SerializableLocation
     {
-        forecasts = await Http.GetJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public static Location ToDomain(SerializableLocation location)
+        {
+            return new Location(location.X, location.Y);
+        }
+
+        public override string ToString()
+        {
+            return $"({X}, {Y})";
+        }
+    }
+
+    public class SerializableTSPSpec
+    {
+        public string Name { get; set; }
+        public int[] OptimalTour { get; set; }
+        public SerializableLocation[] Cities { get; set; }
+
+        public static TSPSolving ToDomain(SerializableTSPSpec spec)
+        {
+            return new TSPSolving(spec.Name, spec.OptimalTour, spec.Cities.Select(SerializableLocation.ToDomain).ToList());
+        }
+
+        public override string ToString()
+        {
+            var coordinates = string.Join(" ,", (IEnumerable<SerializableLocation>)Cities);
+            return $"{Name} ({Cities.Length}cities): ({coordinates})";
+        }
+
+
     }
 
     public class WeatherForecast
@@ -51,5 +81,41 @@ else
         public string Summary { get; set; }
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var ts = await Http.GetJsonAsync<SerializableTSPSpec[]>("sample-data/tspspecs.json");
+        tspSpec=ts.Select(SerializableTSPSpec.ToDomain).OrderBy(spec=>spec.Cities.Count).ToArray();
+        selectedTSPSpec = tspSpec.FirstOrDefault();
+        foreach (TSPSolving t in tspSpec)
+        {
+            Console.WriteLine(t.ToString());
+        }
+    }
+
+    private void TSPSpecSelected(ChangeEventArgs e)
+    {
+        var specName = (string)e.Value;
+        Console.WriteLine($"Selected spec: {specName}");
+        selectedTSPSpec = tspSpec.Single(tspSpec => tspSpec.Name == specName);
+
+    }
+
+    BECanvasComponent scene;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(scene == null)
+        {
+            return;
+        }
+
+        var context = await scene.CreateCanvas2DAsync();
+        await context.ClearRectAsync(0, 0, scene.Width, scene.Height);
+
     }
 }
+

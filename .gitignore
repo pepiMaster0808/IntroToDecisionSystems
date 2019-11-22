@@ -1,2 +1,5 @@
 bin/
 obj/
+/.vs/TSPSolver
+/TSPSolver.csproj.user
+/Properties/launchSettings.json

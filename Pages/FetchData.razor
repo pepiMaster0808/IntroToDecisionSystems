@@ -20,8 +20,14 @@ else
                 <option>@spec.Name</option>
             }
         </select>
+        <InputCheckbox></InputCheckbox>
     </label>
 
+    <label>
+        <input type="checkbox" @bind= "showOptimalTour" />
+        Show optimal Tour
+    </label>
+    
 </form>
 
     <BECanvas @ref="scene" Width ="500" Height ="500"></BECanvas>
@@ -31,6 +37,7 @@ else
     WeatherForecast[] forecasts;
     TSPSolving[] tspSpec;
     TSPSolving selectedTSPSpec;
+    bool showOptimalTour = true;
 
 
 

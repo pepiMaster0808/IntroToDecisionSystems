@@ -9,7 +9,13 @@ namespace TSPSolver.TSP
     {
         public static double GetDistance(IReadOnlyList<int> solution, IReadOnlyList<Location> cities)
         {
-            //TODO ihr schafft das!!!
+            double entfX = 0;
+            for(int i = 0; i < cities.Count; i++)
+            {
+                entfX += Math.Sqrt(Math.Pow(Math.Abs(cities[i].X - cities[i + 1].X), 2) + Math.Pow(Math.Abs(cities[i].Y - cities[i + 1].Y), 2)); 
+            }
+            return entfX;
         }
+
     }
 }

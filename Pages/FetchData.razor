@@ -11,6 +11,8 @@
 
 else
 {
+    var optimaltTourDistance = Utils.GetDistance(selectedTSPSpec.Optimaltour, selectedTSPSpec.Cities);
+
 <form>
     <label>
         TSP Specification:
@@ -25,7 +27,7 @@ else
 
     <label>
         <input type="checkbox" @bind= "showOptimalTour" />
-        Show optimal Tour
+        Show optimal Tour (Distance = @optimaltTourDistance)
     </label>
     
 </form>

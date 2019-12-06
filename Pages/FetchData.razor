@@ -121,6 +121,11 @@ else
             return;
         }
 
+        var minX = selectedTSPSpec.Cities.Select(location => location.X).Min();
+        var maxX = selectedTSPSpec.Cities.Select(location => location.X).Max();
+        var minY = selectedTSPSpec.Cities.Select(location => location.Y).Min();
+        var maxY = selectedTSPSpec.Cities.Select(location => location.Y).Max();
+
         Location GetSceneCoordinates(Location city)
         {
 
@@ -141,7 +146,7 @@ else
         }
 
 
-         await DrawTour("lime", selectedTSPSpec.Optimaltour);
+        await DrawTour("lime", selectedTSPSpec.Optimaltour);
 
         foreach(var city in selectedTSPSpec.Cities.Select(GetSceneCoordinates))
         {

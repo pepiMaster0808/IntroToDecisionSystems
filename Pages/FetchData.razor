@@ -138,11 +138,31 @@ else
             return new Location(x, y);
         }
 
-       
+
 
         async Task DrawTour(string color, IReadOnlyList<int> tour)
         {
+            if(tour.Count == 0)
+            {
+                return;
+            }
 
+            await context.SetStrokeStyleAsync(color);
+            await context.BeginBatchAsync();
+
+            var coordinates = selectedTSPSpec.Cities.Select(GetSceneCoordinates).ToArray();
+
+            var startCoordinate = selectedTSPSpec.Cities[tour[0] - 1];
+            await context.MoveToAsync(startCoordinate.X, startCoordinate.Y);
+            foreach(var cityIndex in tour.Skip(1))
+            {
+                var coordinate = coordinates[cityIndex-1];
+                await context.LineToAsync(coordinate.X, coordinate.Y);
+            }
+
+            await context.ClosePathAsync();
+            
+            await context.StrokeAsync();
         }
 
 
